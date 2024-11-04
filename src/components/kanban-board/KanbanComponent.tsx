@@ -1,61 +1,83 @@
+'use client'
+import { useEffect, useState } from "react";
+import ItemCard from "./ItemCard";
 
+export interface Task {
+    status: string | undefined,
+    name: string | undefined,
+}
 export default function KanbanComponent() {
     const statusList = ["Todo", "In Progress", "Pending", "Completed", "Test", "Re-Test", "Closed"];
 
-    const tasks = [
-        {
-            status: "Todo",
-            name: "Test1"
-        },
-        {
-            status: "Todo",
-            name: "Test Todo"
-        },
-        {
-            status: "Todo",
-            name: "Test Todo"
-        },
-        {
-            status: "Todo",
-            name: "Test Todo"
-        },
-        {
-            status: "Todo",
-            name: "Test Todo"
-        },
-        {
-            status: "Todo",
-            name: "Test Todo 1"
-        },
-        {
-            status: "Completed",
-            name: "Test 2"
-        },
-        {
-            status: "Closed",
-            name: "Test 3"
+    const [tasks, setTasks] = useState<Task[]>([])
+
+
+    useEffect(() => {
+        setTasks([
+            {
+                status: "Todo",
+                name: "Test1"
+            },
+            {
+                status: "Todo",
+                name: "Test Todo"
+            },
+            {
+                status: "Todo",
+                name: "Test Todo"
+            },
+            {
+                status: "Todo",
+                name: "Test Todo"
+            },
+            {
+                status: "Todo",
+                name: "Test Todo"
+            },
+            {
+                status: "Todo",
+                name: "Test Todo 1"
+            },
+            {
+                status: "Completed",
+                name: "Test 2"
+            },
+            {
+                status: "Closed",
+                name: "Test 3"
+            }
+        ])
+    }, [])
+
+    function handleAddTask(status: string) {
+        const item: Task = {
+            status,
+            name: ''
         }
-    ]
+        setTasks([...tasks, item])
+    }
+
     return (
         <>
-            <div className="w-full h-full p-6">
-                <div className="w-full grid grid-flow-col gap-4">
+            <div className="w-full h-full p-6 text-white overflow-x-auto ">
+                <div className="w-full grid grid-flow-col">
                     {
                         statusList.map((status, index) => {
                             return (
-                                <div className="flex  flex-col gap-4 text-center" key={index}>
+                                <div className="flex w-[250px] flex-col  text-center" key={index}>
                                     <h3>{status}</h3>
-                                    <div className="grid grid-cols-1 gap-2 bg-red-100">
+                                    <div className={`grid grid-cols-1 gap-2 bg-[#30353c]  p-2`}>
                                         {
-                                            tasks.map((task, taskIndex) => {
+                                            tasks && tasks.map((task, taskIndex) => {
                                                 return (
                                                     task.status === status &&
-                                                    <div key={taskIndex} className="w-full border border-red-600 p-4 flex flex-col justify-start">
-                                                        <p className="w-full text-start">{task.name}</p>
-                                                    </div>
+                                                    <ItemCard key={taskIndex} taskDetail={task}></ItemCard>
                                                 );
                                             })
                                         }
+                                        <div className="my-4">
+                                            <button onClick={() => handleAddTask(status)}>+ Add Task</button>
+                                        </div>
                                     </div>
                                 </div>
                             );
