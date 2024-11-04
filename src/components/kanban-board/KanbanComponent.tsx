@@ -1,6 +1,9 @@
+
 'use client'
 import { useEffect, useState } from "react";
 import ItemCard from "./ItemCard";
+import DroppingArea from "./DroppingArea";
+import { log } from "console";
 
 export interface Task {
     status: string | undefined,
@@ -10,6 +13,7 @@ export default function KanbanComponent() {
     const statusList = ["Todo", "In Progress", "Pending", "Completed", "Test", "Re-Test", "Closed"];
 
     const [tasks, setTasks] = useState<Task[]>([])
+    const[activeCard,setActiveCard] = useState<number | null>(null)
 
 
     useEffect(() => {
@@ -57,6 +61,16 @@ export default function KanbanComponent() {
         setTasks([...tasks, item])
     }
 
+    const onDrop = (status: string, position: number) => {
+        if (activeCard === null) return;
+
+        const taskToMove = tasks[activeCard];
+        const updatedTasks = tasks.filter((_, index) => index !== activeCard);
+        updatedTasks.splice(position, 0, { ...taskToMove, status });
+        setTasks(updatedTasks);
+        setActiveCard(null);
+    };
+
     return (
         <>
             <div className="w-full h-full p-6 text-white overflow-x-auto ">
@@ -71,7 +85,12 @@ export default function KanbanComponent() {
                                             tasks && tasks.map((task, taskIndex) => {
                                                 return (
                                                     task.status === status &&
-                                                    <ItemCard key={taskIndex} taskDetail={task}></ItemCard>
+                                                    <div className="flex flex-col gap-2">
+                                                      <DroppingArea onDrop={()=>onDrop(status,0)}/>
+                                                          <ItemCard key={taskIndex} index={taskIndex} taskDetail={task} setActiveCard={setActiveCard}></ItemCard>
+                                                          <DroppingArea onDrop={()=>onDrop(status,taskIndex+1)}/>
+                                                    </div>
+                                                    
                                                 );
                                             })
                                         }
@@ -85,6 +104,7 @@ export default function KanbanComponent() {
                     }
                 </div>
             </div>
+
 
 
         </>
