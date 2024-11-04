@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import ItemCard from "./ItemCard";
 import DroppingArea from "./DroppingArea";
-import { log } from "console";
+
 
 export interface Task {
     status: string | undefined,
