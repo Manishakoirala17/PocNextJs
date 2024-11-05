@@ -27,33 +27,50 @@ export default function KanbanComponent() {
     }
 
 
-    const[newTask,setNewTask]=useState('');
-    
-    
-    const saveNewTask = (task:string,status:string)=>{
-        const item: Task = {
-            status:status,
-            name: task
+    const [newTask, setNewTask] = useState('');
+    const saveNewTask = (task: string, status: string) => {
+           const newTask = task.trim();
+        if (newTask.length !== 0) {
+            const item: Task = {
+                status: status,
+                name: newTask
+            }
+            setTasks([...tasks, item])
+
+            setIsAddNewTask(previous => ({
+                ...previous,
+                [status]: []
+            }));
+
         }
-        setTasks([...tasks, item])
-       
-        setIsAddNewTask(previous => ({
-            ...previous, [status]: [...(previous[status] || []), false]
-        }))
-        
+
+
     }
     console.log(tasks);
 
+    const onDrop = (status: string, dropIndex: number) => {
+        if (activeCard === null || activeCard === undefined) return;  
+    
+        const taskToMove = tasks[activeCard];  
+        const updatedTasks = [...tasks];  
 
-    const onDrop = (status: string, position: number) => {
-        if (activeCard === null) return;
+        updatedTasks.splice(activeCard, 1); 
+ 
+        
+    
+        const taskStatus = updatedTasks.filter(task=> task.status === status);
 
-        const taskToMove = tasks[activeCard];
-        const updatedTasks = tasks.filter((_, index) => index !== activeCard);
-        updatedTasks.splice(position, 0, { ...taskToMove, status });
+        if(taskStatus.length === 0){
+            updatedTasks.push({...taskToMove,status})
+        }else{
+            updatedTasks.splice(dropIndex, 0, { ...taskToMove, status });
+        }
+    
         setTasks(updatedTasks);
+    
         setActiveCard(null);
     };
+    
 
     return (
         <>
@@ -69,30 +86,17 @@ export default function KanbanComponent() {
                                             tasks && tasks.map((task, taskIndex) => {
                                                 return (
                                                     task.status === status &&
-                                                    <div>
+                                                    <div className="flex flex-col gap-2" >
+                                                    <DroppingArea onDrop={()=>onDrop(status,0)}/>
                                                         <ItemCard key={taskIndex} index={taskIndex} taskDetail={task} setActiveCard={setActiveCard}></ItemCard>
-                                                    </div>
+                                                        <DroppingArea onDrop={()=>onDrop(status,taskIndex+1)}/>
+                                                  </div>
                                                 );
                                             })
                                         }
-
-                                        {/* {
-                                            tasks && tasks.map((task, taskIndex) => {
-                                                return (
-                                                    task.status === status &&
-                                                    <div className="flex flex-col gap-2">
-                                                      <DroppingArea onDrop={()=>onDrop(status,0)}/>
-                                                          <ItemCard key={taskIndex} index={taskIndex} taskDetail={task} setActiveCard={setActiveCard}></ItemCard>
-                                                          <DroppingArea onDrop={()=>onDrop(status,taskIndex+1)}/>
-                                                    </div>
-                                                    
-                                                );
-                                            })
-                                        } */}
                                         {
-
                                             isAddNewTask[status]?.map((_, index) => (
-                                            <AddTaskCard handleChange={()=>saveNewTask(newTask, status)} setNewTask={setNewTask}/>  
+                                                <AddTaskCard handleChange={() => saveNewTask(newTask, status)} setNewTask={setNewTask} />
                                             ))
 
                                         }
