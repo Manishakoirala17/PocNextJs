@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import ItemCard from "./ItemCard";
 import DroppingArea from "./DroppingArea";
-
+import AddTaskCard from "./AddTaskCard";
 
 export interface Task {
     status: string | undefined,
@@ -13,53 +13,37 @@ export default function KanbanComponent() {
     const statusList = ["Todo", "In Progress", "Pending", "Completed", "Test", "Re-Test", "Closed"];
 
     const [tasks, setTasks] = useState<Task[]>([])
-    const[activeCard,setActiveCard] = useState<number | null>(null)
+    const [activeCard, setActiveCard] = useState<number | null>(null)
 
 
-    useEffect(() => {
-        setTasks([
-            {
-                status: "Todo",
-                name: "Test1"
-            },
-            {
-                status: "Todo",
-                name: "Test Todo"
-            },
-            {
-                status: "Todo",
-                name: "Test Todo"
-            },
-            {
-                status: "Todo",
-                name: "Test Todo"
-            },
-            {
-                status: "Todo",
-                name: "Test Todo"
-            },
-            {
-                status: "Todo",
-                name: "Test Todo 1"
-            },
-            {
-                status: "Completed",
-                name: "Test 2"
-            },
-            {
-                status: "Closed",
-                name: "Test 3"
-            }
-        ])
-    }, [])
 
+
+    const [isAddNewTask, setIsAddNewTask] = useState<{ [status: string]: boolean[] }>({})
     function handleAddTask(status: string) {
+
+        setIsAddNewTask(previous => ({
+            ...previous, [status]: [...(previous[status] || []), true]
+        }))
+    }
+
+
+    const[newTask,setNewTask]=useState('');
+    
+    
+    const saveNewTask = (task:string,status:string)=>{
         const item: Task = {
-            status,
-            name: ''
+            status:status,
+            name: task
         }
         setTasks([...tasks, item])
+       
+        setIsAddNewTask(previous => ({
+            ...previous, [status]: [...(previous[status] || []), false]
+        }))
+        
     }
+    console.log(tasks);
+
 
     const onDrop = (status: string, position: number) => {
         if (activeCard === null) return;
@@ -85,6 +69,17 @@ export default function KanbanComponent() {
                                             tasks && tasks.map((task, taskIndex) => {
                                                 return (
                                                     task.status === status &&
+                                                    <div>
+                                                        <ItemCard key={taskIndex} index={taskIndex} taskDetail={task} setActiveCard={setActiveCard}></ItemCard>
+                                                    </div>
+                                                );
+                                            })
+                                        }
+
+                                        {/* {
+                                            tasks && tasks.map((task, taskIndex) => {
+                                                return (
+                                                    task.status === status &&
                                                     <div className="flex flex-col gap-2">
                                                       <DroppingArea onDrop={()=>onDrop(status,0)}/>
                                                           <ItemCard key={taskIndex} index={taskIndex} taskDetail={task} setActiveCard={setActiveCard}></ItemCard>
@@ -93,10 +88,18 @@ export default function KanbanComponent() {
                                                     
                                                 );
                                             })
+                                        } */}
+                                        {
+
+                                            isAddNewTask[status]?.map((_, index) => (
+                                            <AddTaskCard handleChange={()=>saveNewTask(newTask, status)} setNewTask={setNewTask}/>  
+                                            ))
+
                                         }
                                         <div className="my-4">
                                             <button onClick={() => handleAddTask(status)}>+ Add Task</button>
                                         </div>
+
                                     </div>
                                 </div>
                             );
